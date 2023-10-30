@@ -33,8 +33,9 @@
         let sectionPalettes = [];
         let colorPalettes = [];
         let drawBoundariesFlag = Math.random() < 0.5;
-        let cRangeChoice = [.01, .02, .03, .04];
-        let cMidPoint = .37;
+        let cRangeChoice = [.02, .03, .04];
+        let cMidPointChoice = [.35, .37, .39, .41];
+        // let cMidPoint = .37;
         let frameCounter = 0;
         let toggle = true;
         let smokeColor = [];
@@ -139,6 +140,8 @@ function setup() {
             console.log("Current kill:", kill);  // Log the theme name to the console
             gridSize = random(gridSizeChoice);
             cRange = random(cRangeChoice);
+            cMidPoint = random(cMidPointChoice);
+            console.log("midPoint:", cMidPoint);
             console.log("cRange:", cRange);
             console.log("Grid Size:", gridSize);
             pixelDensity(7);
