@@ -151,7 +151,8 @@ function setup() {
             let randomTheme = random(themes);
             console.log("Currently using color set:", randomTheme);  // Log the theme name to the console
             let colorPalettes = themedPalettes[randomTheme];
-            smokeColor = colorPalettes[3][2];
+            randomNumColor = int(random(0,2));
+            smokeColor = colorPalettes[3][randomNumColor];
             console.log("smokeColor:", smokeColor);
 
             for (let i = 0; i < gridSize; i++) {
