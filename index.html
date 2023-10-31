@@ -35,10 +35,10 @@
         let drawBoundariesFlag = Math.random() < 0.5;
         let cRangeChoice = [.02, .03, .04];
         let cMidPointChoice = [.35, .37, .39, .41];
-        // let cMidPoint = .37;
         let frameCounter = 0;
         let toggle = true;
         let smokeColor = [];
+        let isBlack;
         let themedPalettes = {
 // Set 1: Oceanic Adventures
 "Oceanic Adventures": [
@@ -154,9 +154,19 @@ function setup() {
             let randomTheme = random(themes);
             console.log("Currently using color set:", randomTheme);  // Log the theme name to the console
             let colorPalettes = themedPalettes[randomTheme];
-            randomNumColor = int(random(0,2));
-            smokeColor = colorPalettes[3][randomNumColor];
-            console.log("smokeColor:", smokeColor);
+            let monoToggle = random() < .7;
+            if (monoToggle) {
+                isBlack = random() < .5;
+                if (isBlack) {
+                    smokeColor = [0, 0, 0];
+                } else {
+                    smokeColor = [255, 255, 255];
+                }
+            } else {
+                randomNumColor = int(random(0,2));
+                smokeColor = colorPalettes[3][randomNumColor];
+                console.log("smokeColor:", smokeColor);
+            }
 
             for (let i = 0; i < gridSize; i++) {
                 sectionPalettes[i] = [];
@@ -312,7 +322,6 @@ function isEqualPalette(palette1, palette2) {
 // }
 
 function draw() {
-    
 
     drawSectionConnections();
 
@@ -437,7 +446,7 @@ if (isDiagonalSection) {
         let b = nextXY.b;
         let c = nextXY.c;
 
-        if (c <= (cMidPoint + cRange) && c >= (cMidPoint - cRange)) {
+        if (c <= (cMidPoint + cRange) && c >= (cMidPoint - cRange) && frameCounter >= 3) {
             offScreenCanvas.set(x, y, color(smokeColor, 25)); // Set pixel to black
         } else {
         let colorA = color(selectedPalette[0][0], selectedPalette[0][1], selectedPalette[0][2]);
