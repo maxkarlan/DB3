@@ -22,10 +22,10 @@
     <script>
         let colorA, colorB, colorC;
         let offScreenCanvas;
-        let sizeChoice = [50, 75, 100, 125];
+        let sizeChoice = [125];
         let canvasSize;
         let offsetX, offsetY;
-        let gridSizeChoice = [2, 3, 4, 5];
+        let gridSizeChoice = [4];
         let gridSize;
         let grid = [];
         let next = [];
@@ -34,10 +34,12 @@
         let colorPalettes = [];
         let drawBoundariesFlag = Math.random() < 0.5;
         let cRangeChoice = [.02, .03, .04];
+        let cRange2Choice = [.02, .03, .04];
         let cMidPointChoice = [.35, .37, .39, .41];
         let frameCounter = 0;
         let toggle = true;
         let smokeColor = [];
+        let smokeColor2 = [];
         let isBlack;
         let themedPalettes = {
 // Set 1: Oceanic Adventures
@@ -140,9 +142,11 @@ function setup() {
             console.log("Current kill:", kill);  // Log the theme name to the console
             gridSize = random(gridSizeChoice);
             cRange = random(cRangeChoice);
+            cRange2 = random(cRange2Choice);
             cMidPoint = random(cMidPointChoice);
             console.log("midPoint:", cMidPoint);
             console.log("cRange:", cRange);
+            console.log("cRange2:", cRange2);
             console.log("Grid Size:", gridSize);
             pixelDensity(7);
             createCanvas(windowWidth, windowHeight);
@@ -154,7 +158,8 @@ function setup() {
             let randomTheme = random(themes);
             console.log("Currently using color set:", randomTheme);  // Log the theme name to the console
             let colorPalettes = themedPalettes[randomTheme];
-            let monoToggle = random() < .7;
+            let monoToggle = random() < .5;
+            let monoToggle2 = random() < .5;
             if (monoToggle) {
                 isBlack = random() < .5;
                 if (isBlack) {
@@ -168,10 +173,22 @@ function setup() {
                 console.log("smokeColor:", smokeColor);
             }
 
+            if (monoToggle2) {
+                if (isBlack) {
+                    smokeColor2 = [255, 255, 255];
+                } else {
+                    smokeColor2 = [0, 0, 0];
+                }
+            } else {
+                randomNumColor2 = int(random(0,2));
+                smokeColor2 = colorPalettes[2][randomNumColor2];
+                console.log("smokeColor2:", smokeColor2);
+            }
+
             for (let i = 0; i < gridSize; i++) {
                 sectionPalettes[i] = [];
                 for (let j = 0; j < gridSize; j++) {
-                    let randomPaletteIndex = floor(random(colorPalettes.length - 1));
+                    let randomPaletteIndex = floor(random(colorPalettes.length - 2));
                     sectionPalettes[i][j] = colorPalettes[randomPaletteIndex];
                 }
             }
@@ -212,7 +229,7 @@ function setup() {
                 }
             }
 
-            frameRate(9);
+            frameRate(10);
             console.log("frame rate", frameRate());
             offScreenCanvas = createGraphics(canvasSize, canvasSize);
         }
@@ -220,7 +237,7 @@ function setup() {
     function drawSectionConnections() {
     let centroids = computeCentroids();
     let sectionGirth = canvasSize / gridSize;
-    let blockWidth = sectionGirth * 0.35;
+    let blockWidth = sectionGirth * 0.5;
     let blockLength = sectionGirth + blockWidth; // Increased length
     let visited = {};
     offScreenCanvas.noStroke();
@@ -327,7 +344,7 @@ function draw() {
 
     frameCounter++;
     console.log("frameCounter:", frameCounter);
-    if (frameCounter % 80 === 0) {
+    if (frameCounter % 110 === 0) {
         toggle = !toggle;
         if (canvasSize == 75) {
             if (toggle) {
@@ -375,6 +392,22 @@ function draw() {
             }
         }
         if (canvasSize == 125) {
+            if (toggle) {
+                dA = -(dA * 1.5);
+                dB = -(dB * 1.5);
+                dC = -(dC * 1.5);
+                kill = kill * 1.5;
+                feed = feed * 1.5;
+            } else {
+                dA = -(dA / 1.5);
+                dB = -(dB / 1.5);
+                dC = -(dC / 1.5);
+                kill = kill / 1.5;
+                feed = feed / 1.5;
+            }
+        }
+
+        if (canvasSize > 125) {
             if (toggle) {
                 dA = -(dA * 1.5);
                 dB = -(dB * 1.5);
@@ -448,6 +481,8 @@ if (isDiagonalSection) {
 
         if (c <= (cMidPoint + cRange) && c >= (cMidPoint - cRange) && frameCounter >= 3) {
             offScreenCanvas.set(x, y, color(smokeColor, 25)); // Set pixel to black
+        } else if (((c <= (cMidPoint + cRange + cRange2) && c >= (cMidPoint + cRange)) || (c <= (cMidPoint - cRange) && c >= (cMidPoint - cRange - cRange2))) && frameCounter >= 3) {
+            offScreenCanvas.set(x, y, color(smokeColor2, 205));
         } else {
         let colorA = color(selectedPalette[0][0], selectedPalette[0][1], selectedPalette[0][2]);
         let colorB = color(selectedPalette[1][0], selectedPalette[1][1], selectedPalette[1][2]);
