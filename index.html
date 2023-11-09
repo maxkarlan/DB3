@@ -115,16 +115,9 @@
 
 // Set 7: OG Theme
 "OG Theme": [
-  // Palette 1
   [[255, 0, 0], [0, 102, 255], [255, 204, 0]],
-    
-  // Palette 2
   [[255, 128, 0], [0, 153, 51], [255, 0, 153]],
-  
-  // Palette 3
   [[255, 0, 128], [102, 255, 51], [0, 102, 255]],
-  
-  // Palette 4
   [[204, 0, 255], [255, 255, 51], [0, 153, 204]]
 ]
 };
@@ -160,6 +153,10 @@ function setup() {
             let colorPalettes = themedPalettes[randomTheme];
             let monoToggle = random() < .5;
             let monoToggle2 = random() < .5;
+            let horMirror = random() < 0.5;
+            console.log("horMirror:", horMirror);
+            let vertMirror = random() < 0.5;
+            console.log("vertMirror:", vertMirror);
             if (monoToggle) {
                 isBlack = random() < .5;
                 if (isBlack) {
@@ -188,8 +185,27 @@ function setup() {
             for (let i = 0; i < gridSize; i++) {
                 sectionPalettes[i] = [];
                 for (let j = 0; j < gridSize; j++) {
-                    let randomPaletteIndex = floor(random(colorPalettes.length - 2));
-                    sectionPalettes[i][j] = colorPalettes[randomPaletteIndex];
+                    // Assign a random palette to the left side of the grid
+                    if (j < gridSize / 2) {
+                        if (i < gridSize / 2) { // If we're in the top-left quadrant
+                            let randomPaletteIndex = int(random(colorPalettes.length));
+                            sectionPalettes[i][j] = colorPalettes[randomPaletteIndex];
+                        } else if (horMirror) { // If vertical mirroring, copy from the top half
+                            sectionPalettes[i][j] = sectionPalettes[(gridSize - i) - 1][j];
+                        } else { // If no vertical mirroring, assign a random palette
+                            let randomPaletteIndex = int(random(colorPalettes.length));
+                            sectionPalettes[i][j] = colorPalettes[randomPaletteIndex];
+                        }
+                    } else if (vertMirror) { // If horizontal mirroring, copy from the left side
+                        // if (i < gridSize /2) {
+                        sectionPalettes[i][j] = sectionPalettes[i][(gridSize - j) - 1];
+                        // } else if ()
+                    } else if (i >= gridSize / 2 && horMirror) {
+                        sectionPalettes[i][j] = sectionPalettes[(gridSize - i) - 1][j];
+                    } else { // If no horizontal mirroring, assign a random palette
+                        let randomPaletteIndex = int(random(colorPalettes.length));
+                        sectionPalettes[i][j] = colorPalettes[randomPaletteIndex];
+                    }
                 }
             }
 
@@ -302,7 +318,6 @@ function setup() {
 }
 
 
-
 function computeCentroids() {
     let centroids = [];
 
@@ -346,51 +361,6 @@ function draw() {
     console.log("frameCounter:", frameCounter);
     if (frameCounter % 110 === 0) {
         toggle = !toggle;
-        if (canvasSize == 75) {
-            if (toggle) {
-                dA = -(dA * 2);
-                dB = -(dB * 2);
-                dC = -(dC * 2);
-                kill = kill * 2;
-                feed = feed * 2;
-            } else {
-                dA = -(dA / 2);
-                dB = -(dB / 2);
-                dC = -(dC / 2);
-                kill = kill / 2;
-                feed = feed / 2;
-            }
-        }
-        if (canvasSize == 50) {
-            if (toggle) {
-                dA = -(dA * 2.5);
-                dB = -(dB * 2.5);
-                dC = -(dC * 2.5);
-                kill = kill * 2.5;
-                feed = feed * 2.5;
-            } else {
-                dA = -(dA / 2.5);
-                dB = -(dB / 2.5);
-                dC = -(dC / 2.5);
-                kill = kill / 2.5;
-                feed = feed / 2.5;
-            }
-        }
-        if (canvasSize == 100) {
-            if (toggle) {
-                dA = -(dA * 1.5);
-                dB = -(dB * 1.5);
-                dC = -(dC * 1.5);
-                kill = kill * 1.5;
-                feed = feed * 1.5;
-            } else {
-                dA = -(dA / 1.5);
-                dB = -(dB / 1.5);
-                dC = -(dC / 1.5);
-                kill = kill / 1.5;
-                feed = feed / 1.5;
-            }
-        }
         if (canvasSize == 125) {
             if (toggle) {
                 dA = -(dA * 1.5);
@@ -406,27 +376,6 @@ function draw() {
                 feed = feed / 1.5;
             }
         }
-
-        if (canvasSize > 125) {
-            if (toggle) {
-                dA = -(dA * 1.5);
-                dB = -(dB * 1.5);
-                dC = -(dC * 1.5);
-                kill = kill * 1.5;
-                feed = feed * 1.5;
-            } else {
-                dA = -(dA / 1.5);
-                dB = -(dB / 1.5);
-                dC = -(dC / 1.5);
-                kill = kill / 1.5;
-                feed = feed / 1.5;
-            }
-        }
-    // //     console.log("Current dC:", dC);  // Log the theme name to the console
-    //     toggle = !toggle;
-        // for (let block of sectionConnectionBlocks) {
-        //     grid[block.x][block.y].c = 1;
-        // }
     }
 
     // Cache these values to avoid recalculating them in every iteration of the loop
@@ -495,10 +444,6 @@ if (isDiagonalSection) {
 }
     
     offScreenCanvas.updatePixels();
-
-    // if (drawBoundariesFlag) {
-    //     drawBoundaries(.25, .25);
-    // }
 
     swap();
 
