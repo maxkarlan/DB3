@@ -29,10 +29,9 @@
         let gridSize;
         let grid = [];
         let next = [];
-        let modeChoice = ["classic", "confetti", "ghost2"];
+        let modeChoice = ["classic", "gradient", "confetti", "ghost"];
         let sectionConnectionBlocks = []
         let sectionPalette = [];
-        // let boolPalette = [];
         let colorPalettes = [];
         let drawBoundariesFlag = Math.random() < 0.5;
         let cRangeChoice = [.02, .03, .04];
@@ -45,6 +44,7 @@
         let firstPalette = [];
         let secondPalette = [];
         let isBlack;
+        let numCircles = 30;
         let themedPalettes = {
 // Set 1: Oceanic Adventures
 "Oceanic Adventures": [
@@ -123,12 +123,11 @@
   [[255, 128, 0], [0, 153, 51], [255, 0, 153]],
   [[255, 0, 128], [102, 255, 51], [0, 102, 255]],
   [[204, 0, 255], [255, 255, 51], [0, 153, 204]]
-],
-
-"1": [
-    [[214,64,69], [233,255,249], [158,216,219]],
-    [[]]
 ]
+// "1": [
+//     [[214,64,69], [233,255,249], [158,216,219]],
+//     [[]]
+// ]
 };
 
 function setup() {
@@ -175,8 +174,8 @@ function setup() {
             console.log("horMirror:", horMirror);
             let vertMirror = random() < 0.5;
             console.log("vertMirror:", vertMirror);
-            let sectionWidth = canvasSize / gridSize;
-            let sectionHeight = canvasSize / gridSize;
+            sectionWidth = canvasSize / gridSize;
+            sectionHeight = canvasSize / gridSize;
             if (monoToggle) {
                 isBlack = random() < .5;
                 if (isBlack) {
@@ -202,11 +201,8 @@ function setup() {
 
             for (let i = 0; i < gridSize; i++) {
                 sectionPalette[i] = [];
-                // boolPalette[i] = [];
                 for (let j = 0; j < gridSize; j++) {
-                    // let randomPaletteIndex = int(random(0, 2));
                     isFirstPalette = random() < .5;
-                    // boolPalette[i][j] = isFirstPalette;
                     if (isFirstPalette) {
                         randSectionPalette = firstPalette;
                     } else {
@@ -245,34 +241,18 @@ function setup() {
             diagonalSections = [];
             posSlope = [];
             leftSide = [];
-            // isVert = [];
                 for (let i = 0; i < gridSize; i++) {
                     diagonalSections[i] = [];
                     posSlope[i] = [];
                     leftSide[i] = [];
-                    // isVert[i] = [];
                     for (let j = 0; j < gridSize; j++) {
                         diagonalSections[i][j] = random() < .5; // 50% chance for diagonal division
                         posSlope[i][j] = random() < .5;
                         leftSide[i][j] = random() < .5;
-                        // isVert[i][j] = random() < 0.5;
                     }
                 }
                 console.log("diagonalSections:", diagonalSections);
                 console.log("posSlope:", posSlope);
-
-                // console.log("isVert:", isVert);
-
-            // shuffle(colorPalettes, true);
-
-            // for (let i = 0; i < gridSize; i++) {
-            //     for (let j = 0; j < gridSize; j++) {
-            //         let paletteIndex = i * gridSize + j;
-            //         if (paletteIndex >= colorPalettes.length) continue;
-            //         let currentPalette = colorPalettes[paletteIndex];
-
-            //     }
-            // }
 
             frameRate(10);
             console.log("frame rate", frameRate());
@@ -353,8 +333,6 @@ function computeCentroids() {
     for (let i = 0; i < gridSize; i++) {
         centroids[i] = [];
         for (let j = 0; j < gridSize; j++) {
-            let sectionWidth = canvasSize / gridSize;
-            let sectionHeight = canvasSize / gridSize;
 
             let centerX = (i + 0.5) * sectionWidth;
             let centerY = (j + 0.5) * sectionHeight;
@@ -424,30 +402,7 @@ function draw() {
     for (let y = 0; y < canvasSize; y++) {
         let i = floor(x / gridSizeRatio);
         let j = floor(y / gridSizeRatio);
-        
-        // let isDiagonalSection = diagonalSections[i][j];
-        // let isPosSlope = random() < .5;
-        // let isLeftSide = random() < .5;
-        // let firstPalette;
-        // let secondPalette;
-        // let selectedPalette;
 
-        // console.log("firstPalette:", firstPalette);
-        // console.log("secondPalette:", secondPalette);
-        // console.log("isPosSlope:", isPosSlope);
-        // console.log("isLeftSide:", isLeftSide);
-        // console.log("isDiagonalSection:", isDiagonalSection);
-
-        // let stayPalette;
-        // let changePalette;
-        // let isVertical = isVert[i][j];
-        // if (boolPalette[i][j]) {
-        //     stayPalette = colorPalettes[0];
-        //     changePalette = colorPalettes[1];
-        // } else {
-        //     stayPalette = colorPalettes[1];
-        //     changePalette = colorPalettes[0];
-        // }
     if (diagonalSections[i][j]) {
         if (posSlope[i][j]) {
             if (x - (i*gridSizeRatio) < y - (j*gridSizeRatio)) {
@@ -513,52 +468,41 @@ function draw() {
     } else {
         selectedPalette = sectionPalette[i][j];
     }
-    // console.log("sectionPalette:", sectionPalette);
-    // console.log("selectedPalette:", selectedPalette);
-    // if (isVertical) {
-    //     if (abs((x / gridSizeRatio) - i) < .5) {
-    //         selectedPalette = sectionPalette[i][j];
-    //     } else {
-    //         selectedPalette = sectionPalette[i][floor(random(colorPalettes.length))];
-    //     }
-    // } else {
-    //     if (abs((y / gridSizeRatio) - j) < .5) {
-    //         selectedPalette = sectionPalette[i][j];
-    //     } else {
-    //         selectedPalette = sectionPalette[i][floor(random(colorPalettes.length))];
-    //     }
-    // }
 
-// console.log("isVert:", isVert)
         let nextXY = next[x][y];
         let a = nextXY.a;
         let b = nextXY.b;
         let c = nextXY.c;
         let col;
+        let centroids = computeCentroids();
 
         if (c <= (cMidPoint + cRange) && c >= (cMidPoint - cRange) && frameCounter >= 3) {
             offScreenCanvas.set(x, y, color(smokeColor, 25)); // Set pixel to black
         } else if (((c <= (cMidPoint + cRange + cRange2) && c >= (cMidPoint + cRange)) || (c <= (cMidPoint - cRange) && c >= (cMidPoint - cRange - cRange2))) && frameCounter >= 3) {
             offScreenCanvas.set(x, y, color(smokeColor2, 205));
         } else {
-        // let colorA = color(selectedPalette[0]);
-        // let colorB = color(selectedPalette[1]);
-        // let colorC = color(selectedPalette[2]);
-        if (mode == "classic") {
-            col = lerpColor(color(selectedPalette[0]), color(selectedPalette[1]), c);
-        } else if (mode == "confetti") {
-            col = color(random(selectedPalette));
-        // } else if (mode == "ghost1") {
-        //     col = lerpColor(color(random(selectedPalette)), color(random(selectedPalette)), b);
-        } else if (mode == "ghost2") {
-            col = lerpColor(color(selectedPalette[0]), color((selectedPalette[1]), b));
-        }
-        // console.log("col:", col);
+            if (mode == "classic") {
+                col = lerpColor(color(selectedPalette[0]), color(selectedPalette[1]), c);
+            } else if (mode == "gradient") {
+                let distanceFromCenter = dist(x, y, centroids[i][j].x, centroids[i][j].y);
+                let maxDistance = dist(i*sectionWidth, j*sectionHeight, centroids[i][j].x, centroids[i][j].y);
+                let t = map(distanceFromCenter, 0, maxDistance, 0, 1);
+                if (t <= 0.5) {
+                    // Interpolate between first and second color for the first half
+                    col = lerpColor(color(selectedPalette[0]), color(selectedPalette[1]), t * 2);
+                } else {
+                    // Interpolate between second and third color for the second half
+                    col = lerpColor(color(selectedPalette[1]), color(selectedPalette[2]), (t - 0.5) * 2);
+                }
+            } else if (mode == "confetti") {
+                col = color(random(selectedPalette));
+            } else if (mode == "ghost") {
+                col = lerpColor(color(selectedPalette[0]), color((selectedPalette[1]), b));
+            }
 
-        // let col = lerpColor(lerpColor(colorA, colorB, b), colorC, c);
-        offScreenCanvas.set(x, y, col);
+            offScreenCanvas.set(x, y, col);
+        }
     }
-}
 }
     
     offScreenCanvas.updatePixels();
@@ -572,8 +516,6 @@ function draw() {
 function drawBoundaries(xOffset, yOffset) {
     offScreenCanvas.stroke(0); // Black color for boundaries
     offScreenCanvas.strokeWeight(.75);
-    let sectionWidth = canvasSize / gridSize;
-    let sectionHeight = canvasSize / gridSize;
 
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
