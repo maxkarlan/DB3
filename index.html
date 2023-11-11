@@ -29,8 +29,10 @@
         let gridSize;
         let grid = [];
         let next = [];
+        let modeChoice = ["classic", "confetti", "ghost2"];
         let sectionConnectionBlocks = []
-        let sectionPalettes = [];
+        let sectionPalette = [];
+        // let boolPalette = [];
         let colorPalettes = [];
         let drawBoundariesFlag = Math.random() < 0.5;
         let cRangeChoice = [.02, .03, .04];
@@ -40,6 +42,8 @@
         let toggle = true;
         let smokeColor = [];
         let smokeColor2 = [];
+        let firstPalette = [];
+        let secondPalette = [];
         let isBlack;
         let themedPalettes = {
 // Set 1: Oceanic Adventures
@@ -119,6 +123,11 @@
   [[255, 128, 0], [0, 153, 51], [255, 0, 153]],
   [[255, 0, 128], [102, 255, 51], [0, 102, 255]],
   [[204, 0, 255], [255, 255, 51], [0, 153, 204]]
+],
+
+"1": [
+    [[214,64,69], [233,255,249], [158,216,219]],
+    [[]]
 ]
 };
 
@@ -137,6 +146,8 @@ function setup() {
             cRange = random(cRangeChoice);
             cRange2 = random(cRange2Choice);
             cMidPoint = random(cMidPointChoice);
+            mode = random(modeChoice);
+            console.log("mode:", mode);
             console.log("midPoint:", cMidPoint);
             console.log("cRange:", cRange);
             console.log("cRange2:", cRange2);
@@ -151,12 +162,21 @@ function setup() {
             let randomTheme = random(themes);
             console.log("Currently using color set:", randomTheme);  // Log the theme name to the console
             let colorPalettes = themedPalettes[randomTheme];
+            shuffle(colorPalettes, true);
+            firstPalette = colorPalettes[0];
+            secondPalette = colorPalettes[1];
+            shuffle(firstPalette, true);
+            shuffle(secondPalette, true);
+            let smokeColorChoices = colorPalettes[2];
+            shuffle(smokeColorChoices, true);
             let monoToggle = random() < .5;
             let monoToggle2 = random() < .5;
             let horMirror = random() < 0.5;
             console.log("horMirror:", horMirror);
             let vertMirror = random() < 0.5;
             console.log("vertMirror:", vertMirror);
+            let sectionWidth = canvasSize / gridSize;
+            let sectionHeight = canvasSize / gridSize;
             if (monoToggle) {
                 isBlack = random() < .5;
                 if (isBlack) {
@@ -165,8 +185,7 @@ function setup() {
                     smokeColor = [255, 255, 255];
                 }
             } else {
-                randomNumColor = int(random(0,2));
-                smokeColor = colorPalettes[3][randomNumColor];
+                smokeColor = smokeColorChoices[0];
                 console.log("smokeColor:", smokeColor);
             }
 
@@ -177,34 +196,37 @@ function setup() {
                     smokeColor2 = [0, 0, 0];
                 }
             } else {
-                randomNumColor2 = int(random(0,2));
-                smokeColor2 = colorPalettes[2][randomNumColor2];
+                smokeColor2 = smokeColorChoices[1];
                 console.log("smokeColor2:", smokeColor2);
             }
 
             for (let i = 0; i < gridSize; i++) {
-                sectionPalettes[i] = [];
+                sectionPalette[i] = [];
+                // boolPalette[i] = [];
                 for (let j = 0; j < gridSize; j++) {
+                    // let randomPaletteIndex = int(random(0, 2));
+                    isFirstPalette = random() < .5;
+                    // boolPalette[i][j] = isFirstPalette;
+                    if (isFirstPalette) {
+                        randSectionPalette = firstPalette;
+                    } else {
+                        randSectionPalette = secondPalette;
+                    }
                     // Assign a random palette to the left side of the grid
                     if (j < gridSize / 2) {
                         if (i < gridSize / 2) { // If we're in the top-left quadrant
-                            let randomPaletteIndex = int(random(colorPalettes.length));
-                            sectionPalettes[i][j] = colorPalettes[randomPaletteIndex];
+                            sectionPalette[i][j] = randSectionPalette;
                         } else if (horMirror) { // If vertical mirroring, copy from the top half
-                            sectionPalettes[i][j] = sectionPalettes[(gridSize - i) - 1][j];
+                            sectionPalette[i][j] = sectionPalette[(gridSize - i) - 1][j];
                         } else { // If no vertical mirroring, assign a random palette
-                            let randomPaletteIndex = int(random(colorPalettes.length));
-                            sectionPalettes[i][j] = colorPalettes[randomPaletteIndex];
+                            sectionPalette[i][j] = randSectionPalette;
                         }
                     } else if (vertMirror) { // If horizontal mirroring, copy from the left side
-                        // if (i < gridSize /2) {
-                        sectionPalettes[i][j] = sectionPalettes[i][(gridSize - j) - 1];
-                        // } else if ()
+                        sectionPalette[i][j] = sectionPalette[i][(gridSize - j) - 1];
                     } else if (i >= gridSize / 2 && horMirror) {
-                        sectionPalettes[i][j] = sectionPalettes[(gridSize - i) - 1][j];
+                        sectionPalette[i][j] = sectionPalette[(gridSize - i) - 1][j];
                     } else { // If no horizontal mirroring, assign a random palette
-                        let randomPaletteIndex = int(random(colorPalettes.length));
-                        sectionPalettes[i][j] = colorPalettes[randomPaletteIndex];
+                        sectionPalette[i][j] = randSectionPalette;
                     }
                 }
             }
@@ -221,29 +243,36 @@ function setup() {
             }
 
             diagonalSections = [];
-            isVert = [];
+            posSlope = [];
+            leftSide = [];
+            // isVert = [];
                 for (let i = 0; i < gridSize; i++) {
                     diagonalSections[i] = [];
-                    isVert[i] = [];
+                    posSlope[i] = [];
+                    leftSide[i] = [];
+                    // isVert[i] = [];
                     for (let j = 0; j < gridSize; j++) {
-                        diagonalSections[i][j] = random() < 0.35; // 50% chance for diagonal division
-                        isVert[i][j] = random() < 0.5;
+                        diagonalSections[i][j] = random() < .5; // 50% chance for diagonal division
+                        posSlope[i][j] = random() < .5;
+                        leftSide[i][j] = random() < .5;
+                        // isVert[i][j] = random() < 0.5;
                     }
                 }
                 console.log("diagonalSections:", diagonalSections);
-                console.log("isVert:", isVert);
+                console.log("posSlope:", posSlope);
+
+                // console.log("isVert:", isVert);
 
             // shuffle(colorPalettes, true);
 
-            for (let i = 0; i < gridSize; i++) {
-                for (let j = 0; j < gridSize; j++) {
-                    let paletteIndex = i * gridSize + j;
-                    if (paletteIndex >= colorPalettes.length) continue;
-                    let currentPalette = colorPalettes[paletteIndex];
-                    let sectionWidth = canvasSize / gridSize;
-                    let sectionHeight = canvasSize / gridSize;
-                }
-            }
+            // for (let i = 0; i < gridSize; i++) {
+            //     for (let j = 0; j < gridSize; j++) {
+            //         let paletteIndex = i * gridSize + j;
+            //         if (paletteIndex >= colorPalettes.length) continue;
+            //         let currentPalette = colorPalettes[paletteIndex];
+
+            //     }
+            // }
 
             frameRate(10);
             console.log("frame rate", frameRate());
@@ -260,7 +289,7 @@ function setup() {
 
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
-            let currentPalette = sectionPalettes[i][j];
+            let currentPalette = sectionPalette[i][j];
             let neighbors = [
                 { dx: 0, dy: -1 }, // up
                 { dx: 0, dy: 1 },  // down
@@ -273,13 +302,13 @@ function setup() {
                 let nj = j + n.dy;
 
                 if (ni >= 0 && ni < gridSize && nj >= 0 && nj < gridSize) {
-                    let neighborPalette = sectionPalettes[ni][nj];
+                    let neighborPalette = sectionPalette[ni][nj];
                     let key1 = `${i},${j},${ni},${nj}`;
                     let key2 = `${ni},${nj},${i},${j}`;
 
                     if (isEqualPalette(currentPalette, neighborPalette) && !visited[key1] && !visited[key2]) {
                         // Use the color of chemicalB from the section's color palette
-                        let chemicalBColor = color(currentPalette[1][0], currentPalette[1][1], currentPalette[1][2], 0); // 50% transparency
+                        let chemicalBColor = color(currentPalette[1]);
                         offScreenCanvas.fill(chemicalBColor);
 
                         let start = centroids[i][j];
@@ -347,18 +376,12 @@ function isEqualPalette(palette1, palette2) {
     return true;
 }
 
-// function mousePressed() {
-//     if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
-//         skipFrames = 50;
-//     }
-// }
-
 function draw() {
 
     drawSectionConnections();
 
     frameCounter++;
-    console.log("frameCounter:", frameCounter);
+    // console.log("frameCounter:", frameCounter);
     if (frameCounter % 110 === 0) {
         toggle = !toggle;
         if (canvasSize == 125) {
@@ -402,42 +425,137 @@ function draw() {
         let i = floor(x / gridSizeRatio);
         let j = floor(y / gridSizeRatio);
         
-        let isDiagonalSection = diagonalSections[i][j];
-        let isVertical = isVert[i][j];
-        let selectedPalette = sectionPalettes[i][j];
-        
-if (isDiagonalSection) {
-    if (isVertical) {
-        if (abs((x / gridSizeRatio) - i) < .5) {
-            selectedPalette = sectionPalettes[i][j];
+        // let isDiagonalSection = diagonalSections[i][j];
+        // let isPosSlope = random() < .5;
+        // let isLeftSide = random() < .5;
+        // let firstPalette;
+        // let secondPalette;
+        // let selectedPalette;
+
+        // console.log("firstPalette:", firstPalette);
+        // console.log("secondPalette:", secondPalette);
+        // console.log("isPosSlope:", isPosSlope);
+        // console.log("isLeftSide:", isLeftSide);
+        // console.log("isDiagonalSection:", isDiagonalSection);
+
+        // let stayPalette;
+        // let changePalette;
+        // let isVertical = isVert[i][j];
+        // if (boolPalette[i][j]) {
+        //     stayPalette = colorPalettes[0];
+        //     changePalette = colorPalettes[1];
+        // } else {
+        //     stayPalette = colorPalettes[1];
+        //     changePalette = colorPalettes[0];
+        // }
+    if (diagonalSections[i][j]) {
+        if (posSlope[i][j]) {
+            if (x - (i*gridSizeRatio) < y - (j*gridSizeRatio)) {
+                if (sectionPalette[i][j] == firstPalette) {
+                    if (leftSide[i][j]) {
+                        selectedPalette = firstPalette;
+                    } else {
+                        selectedPalette = secondPalette;
+                    }
+                } else {
+                    if (leftSide[i][j]) {
+                        selectedPalette = secondPalette;
+                    } else {
+                        selectedPalette = firstPalette;
+                    }
+                }
+            } else {
+                if (sectionPalette[i][j] == firstPalette) {
+                    if (leftSide[i][j]) {
+                        selectedPalette = secondPalette;
+                    } else {
+                        selectedPalette = firstPalette;
+                    }
+                } else {
+                    if (leftSide[i][j]) {
+                        selectedPalette = firstPalette;
+                    } else {
+                        selectedPalette = secondPalette;
+                    }
+                }
+            }
         } else {
-            selectedPalette = sectionPalettes[i][floor(random(colorPalettes.length))];
+            if (((i+1)*gridSizeRatio) - x < y - (j*gridSizeRatio)) {
+                if (sectionPalette[i][j] == firstPalette) {
+                    if (leftSide[i][j]) {
+                        selectedPalette = firstPalette;
+                    } else {
+                        selectedPalette = secondPalette;
+                    }
+                } else {
+                    if (leftSide[i][j]) {
+                        selectedPalette = secondPalette;
+                    } else {
+                        selectedPalette = firstPalette;
+                    }
+                }
+            } else {
+                if (sectionPalette[i][j] == firstPalette) {
+                    if (leftSide[i][j]) {
+                        selectedPalette = secondPalette;
+                    } else {
+                        selectedPalette = firstPalette;
+                    }
+                } else {
+                    if (leftSide[i][j]) {
+                        selectedPalette = firstPalette;
+                    } else {
+                        selectedPalette = secondPalette;
+                    }
+                }
+            }
         }
     } else {
-        if (abs((y / gridSizeRatio) - j) < .5) {
-            selectedPalette = sectionPalettes[i][j];
-        } else {
-            selectedPalette = sectionPalettes[i][floor(random(colorPalettes.length))];
-        }
+        selectedPalette = sectionPalette[i][j];
     }
-}
+    // console.log("sectionPalette:", sectionPalette);
+    // console.log("selectedPalette:", selectedPalette);
+    // if (isVertical) {
+    //     if (abs((x / gridSizeRatio) - i) < .5) {
+    //         selectedPalette = sectionPalette[i][j];
+    //     } else {
+    //         selectedPalette = sectionPalette[i][floor(random(colorPalettes.length))];
+    //     }
+    // } else {
+    //     if (abs((y / gridSizeRatio) - j) < .5) {
+    //         selectedPalette = sectionPalette[i][j];
+    //     } else {
+    //         selectedPalette = sectionPalette[i][floor(random(colorPalettes.length))];
+    //     }
+    // }
 
 // console.log("isVert:", isVert)
         let nextXY = next[x][y];
         let a = nextXY.a;
         let b = nextXY.b;
         let c = nextXY.c;
+        let col;
 
         if (c <= (cMidPoint + cRange) && c >= (cMidPoint - cRange) && frameCounter >= 3) {
             offScreenCanvas.set(x, y, color(smokeColor, 25)); // Set pixel to black
         } else if (((c <= (cMidPoint + cRange + cRange2) && c >= (cMidPoint + cRange)) || (c <= (cMidPoint - cRange) && c >= (cMidPoint - cRange - cRange2))) && frameCounter >= 3) {
             offScreenCanvas.set(x, y, color(smokeColor2, 205));
         } else {
-        let colorA = color(selectedPalette[0][0], selectedPalette[0][1], selectedPalette[0][2]);
-        let colorB = color(selectedPalette[1][0], selectedPalette[1][1], selectedPalette[1][2]);
-        let colorC = color(selectedPalette[2][0], selectedPalette[2][1], selectedPalette[2][2]);
+        // let colorA = color(selectedPalette[0]);
+        // let colorB = color(selectedPalette[1]);
+        // let colorC = color(selectedPalette[2]);
+        if (mode == "classic") {
+            col = lerpColor(color(selectedPalette[0]), color(selectedPalette[1]), c);
+        } else if (mode == "confetti") {
+            col = color(random(selectedPalette));
+        // } else if (mode == "ghost1") {
+        //     col = lerpColor(color(random(selectedPalette)), color(random(selectedPalette)), b);
+        } else if (mode == "ghost2") {
+            col = lerpColor(color(selectedPalette[0]), color((selectedPalette[1]), b));
+        }
+        // console.log("col:", col);
 
-        let col = lerpColor(lerpColor(colorA, colorB, b), colorC, c);
+        // let col = lerpColor(lerpColor(colorA, colorB, b), colorC, c);
         offScreenCanvas.set(x, y, col);
     }
 }
@@ -460,11 +578,11 @@ function drawBoundaries(xOffset, yOffset) {
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
             // Check for boundary on the right
-            if (i < gridSize - 1 && !arraysEqual(sectionPalettes[i][j], sectionPalettes[i + 1][j])) {
+            if (i < gridSize - 1 && !arraysEqual(sectionPalette[i][j], sectionPalette[i + 1][j])) {
                 offScreenCanvas.line((i + 1) * sectionWidth + xOffset, j * sectionHeight + yOffset, (i + 1) * sectionWidth + xOffset, (j + 1) * sectionHeight + yOffset);
             }
             // Check for boundary on the bottom
-            if (j < gridSize - 1 && !arraysEqual(sectionPalettes[i][j], sectionPalettes[i][j + 1])) {
+            if (j < gridSize - 1 && !arraysEqual(sectionPalette[i][j], sectionPalette[i][j + 1])) {
                 offScreenCanvas.line(i * sectionWidth + xOffset, (j + 1) * sectionHeight + yOffset, (i + 1) * sectionWidth + xOffset, (j + 1) * sectionHeight + yOffset);
             }
         }
