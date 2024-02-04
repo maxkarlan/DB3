@@ -29,8 +29,8 @@
         let gridSize;
         let grid = [];
         let next = [];
-        let modeChoice = ["classic", "gradient", "confetti", "ghost"];
-        // let modeChoice = ["ghost"];
+        let modeChoice = ["classic", "gradient", "confetti", "ghost", "ridged"];
+        // let modeChoice = ["ridged"];
         let sectionConnectionBlocks = [];
         let sectionPalette = [];
         let colorPalettes = [];
@@ -46,7 +46,7 @@
         let firstPalette = [];
         let secondPalette = [];
         let isBlack;
-        let numCircles = 30;
+        // let numCircles = 30;
         let themedPalettes = {
 // Set 1: Oceanic Adventures
 // "Macaron Sunrise": [
@@ -71,7 +71,7 @@
 };
 
 function setup() {
-            // randomSeed(1131850999913744);
+            // randomSeed(113913744);
             dA = random(.8, .9);
             console.log("Current dA:", dA);  // Log the theme name to the console
             dB = random(0.1, 0.2);
@@ -422,7 +422,7 @@ function draw() {
         let centroids = computeCentroids();
 
         if (c <= (cMidPoint + cRange) && c >= (cMidPoint - cRange) && frameCounter >= 3) {
-            offScreenCanvas.set(x, y, color(smokeColor, 25)); // Set pixel to black
+            offScreenCanvas.set(x, y, color(smokeColor, 25)); // 
         } else if (((c <= (cMidPoint + cRange + cRange2) && c >= (cMidPoint + cRange)) || (c <= (cMidPoint - cRange) && c >= (cMidPoint - cRange - cRange2))) && frameCounter >= 3) {
             offScreenCanvas.set(x, y, color(smokeColor2, 205));
         } else {
@@ -432,15 +432,24 @@ function draw() {
                 let distanceFromCenter = dist(x, y, centroids[i][j].x, centroids[i][j].y);
                 let maxDistance = dist(i*sectionWidth, j*sectionHeight, centroids[i][j].x, centroids[i][j].y);
                 let t = map(distanceFromCenter, 0, maxDistance, 0, 1);
-                if (t <= 0.5) {
-                    // Interpolate between first and second color for the first half
-                    col = lerpColor(color(selectedPalette[0]), color(selectedPalette[1]), t * 2);
+                if (selectedPalette == firstPalette) {
+                    if (t <= 0.5) {
+                        // Interpolate between first and second color for the first half
+                        col = lerpColor(color(selectedPalette[0]), color(selectedPalette[1]), t * 2);
+                    } else {
+                        // Interpolate between second and third color for the second half
+                        col = lerpColor(color(selectedPalette[1]), color(selectedPalette[2]), (t - 0.5) * 2);
+                    }
                 } else {
-                    // Interpolate between second and third color for the second half
-                    col = lerpColor(color(selectedPalette[1]), color(selectedPalette[2]), (t - 0.5) * 2);
+                    col = lerpColor(color(selectedPalette[0]), color(selectedPalette[1]), c);
                 }
             } else if (mode == "confetti") {
-                col = color(random(selectedPalette));
+                if (selectedPalette == firstPalette) {
+                    col = color(random(selectedPalette));
+                } else {
+                    col = lerpColor(color(selectedPalette[0]), color(selectedPalette[1]), c);
+                }
+                                    // col = color(random(selectedPalette));
             } else if (mode == "ghost") {
                 col = lerpColor(color(selectedPalette[0]), color((selectedPalette[1]), b));
             }
